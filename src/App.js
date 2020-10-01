@@ -1,24 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import Recipe from './Recipe';
 import './App.css';
 
-function App() {
+const App = () => {
+  const APP_ID = 'db4da03a';
+  const APP_KEY = '0d9b306f942d7b326982e60df3897bc8';
+  const [query, setQuery] = useState('chicken');
+  const [search, setSearch] = useState('');
+  const [recipes, setRecipes] = useState([]);
+
+  useEffect(() => {
+    const getRecipes = async () => {
+      const response = await fetch(`https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`);
+      const data = await response.json();
+      setRecipes(data.hits);
+      // console.log(data.hits);
+    }
+    getRecipes();
+  }, [query]);
+  // useEffect giống với cmdm, cmdu, có 2 tham số là callback fetch api và tham số thứ 2 là data state cần truyền vào
+  const updateSearch = (event) => {
+    setSearch(event.target.value);
+    console.log(event.target.value);
+  }
+
+  const getSearch = () => {
+    setQuery(search);
+    setSearch('');
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <form className="search-form">
+        <input
+          onChange={updateSearch}
+          className="search-bar"
+          type="text"
+          value={search} />
+        <button className="search-button" type="button" onClick={getSearch}>Search</button>
+      </form>
+      {/* hết form search */}
+      <div className="recipe">
+        {recipes.map((recipe, key) => (
+          <Recipe
+            key={key}
+            title={recipe.recipe.label}
+            calories={recipe.recipe.calories}
+            imgSrc={recipe.recipe.image}
+            ingredients={recipe.recipe.ingredients}
+          />
+        ))}
+      </div>
     </div>
   );
 }
